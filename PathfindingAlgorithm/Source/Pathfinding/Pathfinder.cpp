@@ -2,19 +2,18 @@
 #include <cmath>
 #include <vector>
 #include <queue>
-#include <iostream>
 
-unsigned int Pathfinder::indexOf(Node node) const
+unsigned int Pathfinder::getIndex(Node node) const
 {
 	return node.x + node.y * m_MapWidth;
 }
 
-float Pathfinder::calculateHCost(const int currentX, const int currentY, const int nextX, const int nextY)
+int Pathfinder::calculateHCost(const int currentX, const int currentY, const int nextX, const int nextY)
 {
-	return (float)std::abs(currentX - nextX) + std::abs(currentY - nextY);
+	return std::abs(currentX - nextX) + std::abs(currentY - nextY);
 }
 
-int Pathfinder::FindPath(const int nStartX, const int nStartY, const int nTargetX, const int nTargetY, const unsigned char* pMap, const int nMapWidth, const int nMapHeight, int* pOutBuffer, const int nOutBufferSize)
+int Pathfinder::findPath(const int nStartX, const int nStartY, const int nTargetX, const int nTargetY, const unsigned char* pMap, const int nMapWidth, const int nMapHeight, int* pOutBuffer, const int nOutBufferSize)
 {
 	if (nStartX == nTargetX && nStartY == nTargetY)
 	{
@@ -53,7 +52,7 @@ int Pathfinder::FindPath(const int nStartX, const int nStartY, const int nTarget
 
 	for (unsigned int i = 0; i < mapSize; i++)
 	{
-		if (pMap[i] == 1)
+		if (pMap[i] == 49)
 		{
 			walkable[i] = true;
 		}
@@ -88,9 +87,9 @@ int Pathfinder::FindPath(const int nStartX, const int nStartY, const int nTarget
 			neighbour.x = x;
 			neighbour.y = y;
 
-			const unsigned int neighbourIndex = indexOf(neighbour);
+			const unsigned int neighbourIndex = getIndex(neighbour);
 
-			if (visited[neighbourIndex])
+			if (visited[neighbourIndex] == true)
 			{
 				continue;
 			}
@@ -98,29 +97,27 @@ int Pathfinder::FindPath(const int nStartX, const int nStartY, const int nTarget
 			neighbour.m_FCost = current.m_FCost + calculateHCost(current.x, current.y, neighbour.x, neighbour.y);
 			neighbour.m_GCost = current.m_FCost + calculateHCost(neighbour.x, neighbour.y, goalNode.x, goalNode.y);
 
-			visited[neighbourIndex] = 1;
+			visited[neighbourIndex] = true;
 			parents[neighbourIndex] = current;
 
 			openList.push(neighbour);
 		}
 	}
 
-	Node currentNode = parents[indexOf(goalNode)];
+	Node currentNode = parents[getIndex(goalNode)];
 
-	unsigned int index = 0;
+	int index = 0;
 	unsigned int pathSize = 0;
 	while ((currentNode.x != nTargetX || currentNode.y != nTargetY) && index < nOutBufferSize)
 	{
-		*(pOutBuffer + index) = indexOf(currentNode);
-		std::cout << "Index: " << indexOf(currentNode) << std::endl;
-		currentNode = parents[indexOf(currentNode)];
+		*(pOutBuffer + index) = getIndex(currentNode);
+		currentNode = parents[getIndex(currentNode)];
 		index++;
 		pathSize++;
 	}
 	if (index < nOutBufferSize)
 	{
-		*(pOutBuffer + pathSize) = indexOf(startNode);
-		std::cout << "Index: " << indexOf(startNode) << std::endl;
+		*(pOutBuffer + pathSize) = getIndex(startNode);
 		pathSize++;
 	}
 
