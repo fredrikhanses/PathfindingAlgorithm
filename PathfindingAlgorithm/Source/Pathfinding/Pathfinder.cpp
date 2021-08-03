@@ -89,7 +89,7 @@ int Pathfinder::findPath(const int nStartX, const int nStartY, const int nTarget
 
 			const unsigned int neighbourIndex = getIndex(neighbour);
 
-			if (visited[neighbourIndex] == true)
+			if (visited[neighbourIndex])
 			{
 				continue;
 			}
@@ -121,7 +121,7 @@ int Pathfinder::findPath(const int nStartX, const int nStartY, const int nTarget
 		pathSize++;
 	}
 
-	if (pathSize > 0)
+	if (pathSize > 0 && index < nOutBufferSize)
 	{
 		return pathSize;
 	}

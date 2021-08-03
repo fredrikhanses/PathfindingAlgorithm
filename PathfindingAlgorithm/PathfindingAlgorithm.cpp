@@ -13,7 +13,7 @@ int main()
 	const unsigned int walkable = 49;
 	const unsigned int impassable = 48;
 	const unsigned int path = 45;
-	const unsigned int walkableRatio = 5; // 2 - INT_MAX
+	const unsigned int walkableRatio = 4; // 2 - INT_MAX
 	unsigned int numberOfImpassables = 0;
 	unsigned int numberOfWalkables = 0;
 
@@ -22,6 +22,11 @@ int main()
 
 	unsigned char* pMap = new unsigned char[nOutBufferSize];
 	std::srand((unsigned int)time(NULL));
+
+	unsigned int startX = std::rand() * lastPositionCoordinate / RAND_MAX;
+	unsigned int startY = std::rand() * lastPositionCoordinate / RAND_MAX;
+	unsigned int goalX = std::rand() * lastPositionCoordinate / RAND_MAX;
+	unsigned int goalY = std::rand() * lastPositionCoordinate / RAND_MAX;
 
 	for (unsigned int index = 0; index < nOutBufferSize; index++)
 	{
@@ -39,8 +44,8 @@ int main()
 			numberOfWalkables++;
 		}
 		pMap[index] = (unsigned char)randomNumber;
-		pMap[0] = walkable;
-		pMap[nOutBufferSize - 1] = walkable;
+		pMap[startX + startY * widthHeight] = walkable;
+		pMap[goalX + goalY * widthHeight] = walkable;
 
 		if (drawMap)
 		{
@@ -52,7 +57,7 @@ int main()
 		}
 	}
 
-	pathLength = pathfinder->findPath(0, 0, lastPositionCoordinate, lastPositionCoordinate, pMap, widthHeight, widthHeight, pOutBuffer, nOutBufferSize);
+	pathLength = pathfinder->findPath(startX, startY, goalX, goalY, pMap, widthHeight, widthHeight, pOutBuffer, nOutBufferSize);
 
 	if (drawMap && pathLength > 0)
 	{
@@ -66,7 +71,8 @@ int main()
 
 			pMap[pOutBuffer[index]] = path;
 		}
-		pMap[0] = path;
+		pMap[startX + startY * widthHeight] = 83;
+		pMap[goalX + goalY * widthHeight] = 71;
 		std::cout << std::endl;
 
 		for (unsigned int index = 0; index < nOutBufferSize; index++)
@@ -81,6 +87,8 @@ int main()
 
 	std::cout << "0s: " << numberOfImpassables << std::endl;
 	std::cout << "1s: " << numberOfWalkables << std::endl;
+	std::cout << "Start: " << startX << ", " << startY << " | " << startX + startY * widthHeight << std::endl;
+	std::cout << "Goal: " << goalX << ", " << goalY << " | " << goalX + goalY * widthHeight << std::endl;
 	std::cout << "PathSize: " << pathLength << std::endl;
 
 	//int in = 0;	
