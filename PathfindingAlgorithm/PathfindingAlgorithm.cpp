@@ -1,11 +1,13 @@
 #include <iostream>
 #include "Source/Pathfinding/Pathfinder.h"
+#include "Source/KattisParadoxPathfinder.cpp"
+#include <chrono>
 
 int main()
 {
-	const bool drawMap = true;
+	const bool drawMap = false;
 
-	const int nOutBufferSize = 100; // 4 - 81 000 000
+	const int nOutBufferSize = 200000000; // 4 - 81 000 000
 	const unsigned int widthHeight = (unsigned int)std::sqrtf(nOutBufferSize);
 	const unsigned int lastPositionCoordinate = widthHeight - 1;
 	int* pOutBuffer = new int[nOutBufferSize];
@@ -17,7 +19,8 @@ int main()
 	unsigned int numberOfImpassables = 0;
 	unsigned int numberOfWalkables = 0;
 
-	Pathfinder* pathfinder = new Pathfinder();
+	ParadoxPathfinder* pathfinder = new ParadoxPathfinder();
+	//Pathfinder* pathfinder = new Pathfinder();
 	int pathLength = 0;
 
 	unsigned char* pMap = new unsigned char[nOutBufferSize];
@@ -27,6 +30,11 @@ int main()
 	unsigned int startY = std::rand() * lastPositionCoordinate / RAND_MAX;
 	unsigned int goalX = std::rand() * lastPositionCoordinate / RAND_MAX;
 	unsigned int goalY = std::rand() * lastPositionCoordinate / RAND_MAX;
+
+	startX = 0;
+	startY = 0;
+	goalX = widthHeight - 1;
+	goalY = widthHeight - 1;
 
 	for (unsigned int index = 0; index < nOutBufferSize; index++)
 	{
@@ -47,17 +55,20 @@ int main()
 		pMap[startX + startY * widthHeight] = walkable;
 		pMap[goalX + goalY * widthHeight] = walkable;
 
-		if (drawMap)
-		{
-			std::cout << " | " << pMap[index];
-			if (!((index + 1) % widthHeight))
-			{
-				std::cout << " | " << std::endl;
-			}
-		}
+		//if (drawMap)
+		//{
+		//	std::cout << " | " << pMap[index];
+		//	if (!((index + 1) % widthHeight))
+		//	{
+		//		std::cout << " | " << std::endl;
+		//	}
+		//}
 	}
 
-	pathLength = pathfinder->findPath(startX, startY, goalX, goalY, pMap, widthHeight, widthHeight, pOutBuffer, nOutBufferSize);
+	auto start = std::chrono::high_resolution_clock::now();
+	pathLength = pathfinder->FindPath(startX, startY, goalX, goalY, pMap, widthHeight, widthHeight, pOutBuffer, nOutBufferSize);
+	auto finish = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> elapsed = finish - start;
 
 	if (drawMap && pathLength > 0)
 	{
@@ -90,6 +101,7 @@ int main()
 	std::cout << "Start: " << startX << ", " << startY << " | " << startX + startY * widthHeight << std::endl;
 	std::cout << "Goal: " << goalX << ", " << goalY << " | " << goalX + goalY * widthHeight << std::endl;
 	std::cout << "PathSize: " << pathLength << std::endl;
+	std::cout << "Elapsed time: " << elapsed.count() << std::endl;
 
 	//int in = 0;	
 	//std::cin >> in;

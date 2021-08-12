@@ -13,7 +13,7 @@ int Pathfinder::calculateHCost(const int currentX, const int currentY, const int
 	return std::abs(currentX - nextX) + std::abs(currentY - nextY);
 }
 
-int Pathfinder::findPath(const int nStartX, const int nStartY, const int nTargetX, const int nTargetY, const unsigned char* pMap, const int nMapWidth, const int nMapHeight, int* pOutBuffer, const int nOutBufferSize)
+int Pathfinder::FindPath(const int nStartX, const int nStartY, const int nTargetX, const int nTargetY, const unsigned char* pMap, const int nMapWidth, const int nMapHeight, int* pOutBuffer, const int nOutBufferSize)
 {
 	if (nStartX == nTargetX && nStartY == nTargetY)
 	{
@@ -110,14 +110,14 @@ int Pathfinder::findPath(const int nStartX, const int nStartY, const int nTarget
 	unsigned int pathSize = 0;
 	while ((currentNode.x != nTargetX || currentNode.y != nTargetY) && index < nOutBufferSize)
 	{
-		*(pOutBuffer + index) = getIndex(currentNode);
+		pOutBuffer[index] = getIndex(currentNode);
 		currentNode = parents[getIndex(currentNode)];
 		index++;
 		pathSize++;
 	}
 	if (index < nOutBufferSize)
 	{
-		*(pOutBuffer + pathSize) = getIndex(startNode);
+		pOutBuffer[index] = getIndex(startNode);
 		pathSize++;
 	}
 
