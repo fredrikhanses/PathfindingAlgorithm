@@ -21,9 +21,6 @@
     <ClCompile Include="Source\Pathfinding\Pathfinder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\KattisParadoxPathfinder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pathfinding\Pathfinder.h">

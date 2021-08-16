@@ -143,7 +143,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\KattisParadoxPathfinder.cpp" />
     <ClCompile Include="Source\Pathfinding\Pathfinder.cpp" />
     <ClCompile Include="PathfindingAlgorithm.cpp" />
   </ItemGroup>

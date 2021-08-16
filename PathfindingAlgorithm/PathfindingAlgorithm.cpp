@@ -1,42 +1,41 @@
+#include <random>
+#include <time.h>
 #include <iostream>
-#include "Source/Pathfinding/Pathfinder.h"
-#include "Source/KattisParadoxPathfinder.cpp"
 #include <chrono>
+#include "Source/Pathfinding/Pathfinder.h"
 
 int main()
 {
-	const bool drawMap = false;
+	const bool drawMap = true;
 
-	const int nOutBufferSize = 200000000; // 4 - 81 000 000
-	const unsigned int widthHeight = (unsigned int)std::sqrtf(nOutBufferSize);
-	const unsigned int lastPositionCoordinate = widthHeight - 1;
-	int* pOutBuffer = new int[nOutBufferSize];
+	const int mapSize = 900;
+	const int width = 25;
+	const int height = 37;
+	const int outBufferSize = 100;
 
-	const unsigned int walkable = 49;
-	const unsigned int impassable = 48;
-	const unsigned int path = 45;
-	const unsigned int walkableRatio = 4; // 2 - INT_MAX
+	const unsigned int lastPositionCoordinateX = width - 1;
+	const unsigned int lastPositionCoordinateY = height - 1;
+
+	int* outBuffer = new int[outBufferSize];
+
+	const unsigned char walkable = '1';
+	const unsigned char impassable = '0';
+	const unsigned char path = '-';
+	const unsigned char start = '~';
+	const unsigned char goal = '*';
+	const unsigned int walkableRatio = 4;
 	unsigned int numberOfImpassables = 0;
 	unsigned int numberOfWalkables = 0;
 
-	ParadoxPathfinder* pathfinder = new ParadoxPathfinder();
-	//Pathfinder* pathfinder = new Pathfinder();
-	int pathLength = 0;
-
-	unsigned char* pMap = new unsigned char[nOutBufferSize];
+	unsigned char* pMap = new unsigned char[mapSize];
 	std::srand((unsigned int)time(NULL));
 
-	unsigned int startX = std::rand() * lastPositionCoordinate / RAND_MAX;
-	unsigned int startY = std::rand() * lastPositionCoordinate / RAND_MAX;
-	unsigned int goalX = std::rand() * lastPositionCoordinate / RAND_MAX;
-	unsigned int goalY = std::rand() * lastPositionCoordinate / RAND_MAX;
+	unsigned int startX = std::rand() * lastPositionCoordinateX / RAND_MAX;
+	unsigned int startY = std::rand() * lastPositionCoordinateY / RAND_MAX;
+	unsigned int goalX = std::rand() * lastPositionCoordinateX / RAND_MAX;
+	unsigned int goalY = std::rand() * lastPositionCoordinateY / RAND_MAX;
 
-	startX = 0;
-	startY = 0;
-	goalX = widthHeight - 1;
-	goalY = widthHeight - 1;
-
-	for (unsigned int index = 0; index < nOutBufferSize; index++)
+	for (unsigned int index = 0; index < mapSize; index++)
 	{
 		unsigned int randomNumber = std::rand() * walkableRatio / RAND_MAX + impassable;
 		if (randomNumber > walkable)
@@ -52,63 +51,59 @@ int main()
 			numberOfWalkables++;
 		}
 		pMap[index] = (unsigned char)randomNumber;
-		pMap[startX + startY * widthHeight] = walkable;
-		pMap[goalX + goalY * widthHeight] = walkable;
-
-		//if (drawMap)
-		//{
-		//	std::cout << " | " << pMap[index];
-		//	if (!((index + 1) % widthHeight))
-		//	{
-		//		std::cout << " | " << std::endl;
-		//	}
-		//}
+		pMap[startX + startY * width] = walkable;
+		pMap[goalX + goalY * width] = walkable;
 	}
 
-	auto start = std::chrono::high_resolution_clock::now();
-	pathLength = pathfinder->FindPath(startX, startY, goalX, goalY, pMap, widthHeight, widthHeight, pOutBuffer, nOutBufferSize);
-	auto finish = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double> elapsed = finish - start;
+	Pathfinder* pathfinder = new Pathfinder();
+	int pathLength = 0;
 
-	if (drawMap && pathLength > 0)
+	auto startClock = std::chrono::high_resolution_clock::now();
+	pathLength = pathfinder->findPath(startX, startY, goalX, goalY, pMap, width, height, outBuffer, outBufferSize);
+	auto stopClock = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> elapsed = stopClock - startClock;
+
+	if (drawMap)
 	{
-		for (int index = 0; index < pathLength; index++)
+		if (pathLength > 0 && pathLength <= outBufferSize)
 		{
-			std::cout << " " << pOutBuffer[index] << ",";
-			if (!((index + 1) % widthHeight))
+			std::cout << "PathIndices: ";
+			for (int index = 0; index < pathLength; index++)
 			{
-				std::cout << std::endl;
+				std::cout << " " << outBuffer[index];
+				if(index != pathLength - 1)
+				{
+					std::cout << ",";
+				}
+				pMap[outBuffer[index]] = path;
 			}
-
-			pMap[pOutBuffer[index]] = path;
 		}
-		pMap[startX + startY * widthHeight] = 83;
-		pMap[goalX + goalY * widthHeight] = 71;
+
+		pMap[startX + startY * width] = start;
+		pMap[goalX + goalY * width] = goal;
 		std::cout << std::endl;
 
-		for (unsigned int index = 0; index < nOutBufferSize; index++)
+		for (unsigned int index = 0; index < mapSize; index++)
 		{
 			std::cout << " | " << pMap[index];
-			if (!((index + 1) % widthHeight))
+			if (!((index + 1) % width))
 			{
 				std::cout << " | " << std::endl;
 			}
 		}
 	}
 
-	std::cout << "0s: " << numberOfImpassables << std::endl;
-	std::cout << "1s: " << numberOfWalkables << std::endl;
-	std::cout << "Start: " << startX << ", " << startY << " | " << startX + startY * widthHeight << std::endl;
-	std::cout << "Goal: " << goalX << ", " << goalY << " | " << goalX + goalY * widthHeight << std::endl;
+	std::cout << "0's: " << numberOfImpassables << std::endl;
+	std::cout << "1's: " << numberOfWalkables << std::endl;
+	std::cout << "Start ~ : (" << startX << ", " << startY << ") | Index: " << startX + startY * width << std::endl;
+	std::cout << "Goal  * : (" << goalX << ", " << goalY << ") | Index: " << goalX + goalY * width << std::endl;
 	std::cout << "PathSize: " << pathLength << std::endl;
-	std::cout << "Elapsed time: " << elapsed.count() << std::endl;
-
-	//int in = 0;	
-	//std::cin >> in;
+	std::cout << "Time: " << elapsed.count() << " s" << std::endl;
+	std::cout << "Nodes checked: " << pathfinder->getNodesChecked() << std::endl;
 
 	delete pathfinder;
 	delete[] pMap;
-	delete[] pOutBuffer;
+	delete[] outBuffer;
 
 	return 0;
 }
